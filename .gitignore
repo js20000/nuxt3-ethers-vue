@@ -6,3 +6,8 @@ node_modules
 .output
 .env
 dist
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/nuxt3-ethers-boilerplate.iml
+/.idea/vcs.xml
+/yarn.lock
