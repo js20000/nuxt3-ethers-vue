@@ -33,7 +33,7 @@ export function useTokenList() {
                     contract.decimals(),
                 ])
                 result.push({
-                    name: token.name,
+                    ...token,
                     balance: formatUnits(rawBalance, decimals),
                 })
             } catch (e) {

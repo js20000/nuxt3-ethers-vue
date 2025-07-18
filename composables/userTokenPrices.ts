@@ -1,21 +1,13 @@
-import { TOKENS } from '~/tokens'
 import { ref,watch } from 'vue'
 import {userTokenPricesByAddress} from "~/composables/userTokenPricesByAddress";
 
-export function useTokenPrices() {
+export function useTokenPrices(balances) {
     const priceMap = ref<Record<string, number>>({})
     const map: Record<string, number> = {}
-    userTokenPricesByAddress().then(r => {
-        for (const [name, price] of Object.entries(r)) {
-            for (const token of TOKENS) {
-                if(!token.coingeckoId){
-                    map[token.name] = r[token.name]?? 0
-                }
-            }
-        }
-        priceMap.value = map
+    userTokenPricesByAddress(balances).then(r => {
+       console.log("price by address over!")
     })
-    const ids =TOKENS.filter(x=>x.coingeckoId).map(t => t.coingeckoId).join(',')
+    const ids =balances.filter(x=>x.coingeckoId).map(t => t.coingeckoId).join(',')
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
     const { data, error } = useFetch<Record<string, { usd: number }>>(url, { server: false })
 
@@ -26,14 +18,12 @@ export function useTokenPrices() {
             return
         }
         if (data.value) {
-
-            for (const token of TOKENS) {
+            for (const token of balances) {
                 if(token.coingeckoId){
-                    map[token.name] = data.value[token.coingeckoId]?.usd ?? 0
+                    token.price=data.value[token.coingeckoId]?.usd ?? 0
                 }
             }
-            priceMap.value = map
         }
     }, { immediate: true })  // ✅ 加上它，首次 data 就会触发回调
-    return { priceMap, error }
+    return { balances}
 }

@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "lint": "eslint --ext .js,.ts,.vue ./pages",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
@@ -10,6 +11,7 @@
     "@vueuse/core": "^8.7.5",
     "@vueuse/nuxt": "^8.7.5",
     "autoprefixer": "^10.4.7",
+    "globals": "^16.3.0",
     "nuxt": "3.17.7",
     "postcss": "^8.4.14",
     "sass": "1.69.5",
@@ -18,8 +20,16 @@
     "unplugin-vue-components": "^28.8.0"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
     "@metamask/detect-provider": "^2.0.0",
+    "bech32": "^2.0.0",
+    "bn.js": "^5.2.2",
     "element-plus": "^2.10.4",
-    "ethers": "^6.10.0"
+    "ethers": "^6.10.0",
+    "hash.js": "^1.1.7",
+    "highlight.js": "^11.11.1",
+    "js-sha3": "^0.9.3",
+    "scrypt-js": "^3.0.1",
+    "vue-clipboard3": "^2.0.0"
   }
 }
