@@ -11,3 +11,4 @@ dist
 /.idea/nuxt3-ethers-boilerplate.iml
 /.idea/vcs.xml
 /yarn.lock
+/.idea/nuxt3-ethers-vue.iml
