@@ -1,8 +1,6 @@
 // composables/useTokenPrices.ts
-import { TOKENS } from '~/tokens'
-import { ref } from 'vue'
 
-export async function userTokenPricesByAddress(): Promise<Record<string, number>> {
+export async function userTokenPricesByAddress(TOKENS): Promise<Record<string, number>> {
     const priceMap: Record<string, number> = {}
 
     for (const token of TOKENS) {
@@ -13,10 +11,10 @@ export async function userTokenPricesByAddress(): Promise<Record<string, number>
         try {
             const res = await fetch(url)
             const data = await res.json()
-            priceMap[token.name] = data[token.address.toLowerCase()]?.usd ?? 0
+            token.price = data[token.address.toLowerCase()]?.usd ?? 0
         } catch (e) {
             console.error(`❌ 获取 ${token.name} 价格失败`, e)
-            priceMap[token.name] = 0
+            token.price = 0
         }
 
         // ✅ 避免被限流，每次请求之间加一点延迟（可选）

@@ -1,19 +1,41 @@
 <script setup lang="ts">
-import {useTokenList} from "~/composables/useTokenList";
+import GgPrice from "~/components/gg-price.vue";
+import type {Token} from "~/tokens";
 
 const { connectWallet, account, balance } = useWallet()
 const {balances, loadBalances } = useTokenList()
-const {priceMap} =  useTokenPrices()
 
-onMounted(() => {
+onMounted( () => {
   connectWallet()
   loadBalances()
 })
+watch(balances, () => {
+  useTokenPrices(balances.value)
+});
 const goToQuick = () => {
   navigateTo('/quick')
 }
 const handleClick= () => {
   console.log('click')
+}
+function getSummaries({ columns, data }: any) {
+  const sums: any[] = []
+
+  columns.forEach((column: any, index: number) => {
+    if (index === 0) {
+      sums[index] = '合计'
+    } else if (column.label === '金额（USD）') {
+      const total = data.reduce((acc: number, row: any) => {
+        const price = row.price?? 0
+        return acc + row.balance * price
+      }, 0)
+      sums[index] = `$${total.toFixed(2)}`
+    } else {
+      sums[index] = ''
+    }
+  })
+
+  return sums
 }
 </script>
 
@@ -59,12 +81,20 @@ const handleClick= () => {
         <span>代币余额</span>
       </template>
 
-      <el-table :data="balances" style="width: 100%" border>
+      <el-table :data="balances"
+                show-summary
+                :summary-method="getSummaries"
+                style="width: 100%" border>
         <el-table-column prop="name" label="代币" width="120" />
         <el-table-column prop="balance" label="余额" />
-        <el-table-column label="价格（USD）">
-          <template #default="{ row }">
-            <el-tag type="success">${{ priceMap[row.name] ?? 0 }}</el-tag>
+        <el-table-column label="价格（USD）"  align="right">
+          <template #default="{ row }:{ row: Token }">
+            <el-tag type="success">${{ row.price?? 0 }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="金额（USD）" align="right">
+          <template #default="{ row }:{ row: Token }">
+            <el-tag type="success"> <gg-price :value="row.balance*row.price??0"/></el-tag>
           </template>
         </el-table-column>
       </el-table>
