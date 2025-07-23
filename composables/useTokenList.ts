@@ -1,6 +1,8 @@
 // composables/useTokenList.ts
 
+// @ts-ignore
 import { ref } from 'vue'
+// @ts-ignore
 import { BrowserProvider, Contract, formatUnits } from 'ethers'
 
 const ERC20_ABI = [

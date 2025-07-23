@@ -1,5 +1,8 @@
+// @ts-ignore
 import { ref } from 'vue'
+// @ts-ignore
 import { BrowserProvider, formatEther } from 'ethers'
+// @ts-ignore
 import {markRaw} from "vue";
 export const useWallet = () => {
   const account = ref<string | null>(null)
