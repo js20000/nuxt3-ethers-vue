@@ -1,11 +1,10 @@
 import { ref,watch } from 'vue'
 import {userTokenPricesByAddress} from "~/composables/userTokenPricesByAddress";
 
-export function useTokenPrices(balances) {
+export function useTokenPrices(balances: any[]) {
     const priceMap = ref<Record<string, number>>({})
-    const map: Record<string, number> = {}
     userTokenPricesByAddress(balances).then(r => {
-       console.log("price by address over!")
+       console.log("price by address over!",r)
     })
     const ids =balances.filter(x=>x.coingeckoId).map(t => t.coingeckoId).join(',')
     const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`

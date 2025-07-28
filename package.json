@@ -30,6 +30,7 @@
     "highlight.js": "^11.11.1",
     "js-sha3": "^0.9.3",
     "scrypt-js": "^3.0.1",
+    "vue": "3.5.18",
     "vue-clipboard3": "^2.0.0"
   }
 }

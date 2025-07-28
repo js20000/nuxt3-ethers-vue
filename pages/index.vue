@@ -2,13 +2,17 @@
 import GgPrice from "~/components/gg-price.vue";
 import type {Token} from "~/tokens";
 
-const { connectWallet, account, balance } = useWallet()
+const { connectWallet, address, balance,loadGas } = useWallet()
 const {balances, loadBalances } = useTokenList()
 
-onMounted( () => {
-  connectWallet()
-  loadBalances()
+onMounted( async () => {
+ await initWallet()
+  await loadBalances()
 })
+const initWallet=async ()=>{
+  await connectWallet()
+  await loadGas()
+}
 watch(balances, () => {
   useTokenPrices(balances.value)
 });
@@ -51,23 +55,25 @@ function getSummaries({ columns, data }: any) {
         QuickSwap
       </el-button>
 
+
       <!-- 钱包连接按钮 -->
-      <el-button type="warning" @click="connectWallet">
+      <el-button type="warning" @click="initWallet">
         连接钱包
       </el-button>
     </el-row>
+
     <!-- 主按钮 -->
 
 
     <!-- 显示钱包信息 -->
-    <el-card v-if="account" class="mt-4" shadow="hover">
+    <el-card v-if="address" class="mt-4" shadow="hover">
       <template #header>
         <span>钱包信息</span>
       </template>
 
       <el-descriptions :column="1" border>
         <el-descriptions-item label="钱包地址">
-          {{ account }}
+          {{ address }}
         </el-descriptions-item>
         <el-descriptions-item label="POL 余额">
           {{ balance }}

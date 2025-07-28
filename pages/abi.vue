@@ -1,38 +1,27 @@
 <template>
   <div class="p-6">
-    <el-input v-model="address" placeholder="请输入合约地址" class="w-full mb-4" clearable />
-    <el-button type="primary" @click="loadAbi" :loading="loading">加载 ABI</el-button>
+
+    <el-form>
+      <el-form-item label="合约地址:">
+        <el-input v-model="address" placeholder="请输入合约地址" class="w-full mb-4" clearable />
+      </el-form-item>
+      <el-form-item label="提示词">
+        <el-select v-model="prompt" placeholder="请选择提示词">
+          <el-option v-for="(item,index) in prompts" :key="index" :label="item.name" :value="item" />
+        </el-select>
+      </el-form-item>
+      <el-button type="primary" @click="loadAbi" :loading="loading">加载 ABI</el-button>
+    </el-form>
 
     <div v-if="error" class="mt-4 text-red-500">{{ error }}</div>
 
     <copy-code  :key="kk+'a'" :title="kk+'提示词'">
-      这是实现合约的abi,合约地址{{address}}
-        {{ formattedMainAbi }}
+      {{prompt.prefix}}
+      合约地址:{{address}}
+      ABI:{{ formattedMainAbi }}
 
-        已经有的代码:
-        const { connectWallet, account, balance } = useWallet()
-        const {balances, loadBalances } = useTokenList()
-        onMounted( () => {
-        connectWallet()
-        loadBalances()
-        })
-        watch(balances, () => {
-        useTokenPrices(balances.value)
-        });
-        //account我是这么取的
-        //   const signer = await provider.value.getSigner()
-        // account.value = await signer.getAddress()
-        balance的结构
-        [{
-        name: 'USDC.e',
-        address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
-        coingeckoId: 'usd-coin',
-        price:0,
 
-        }]
-      1.帮我用nuxt3 vue elements-plus etherjs 写一个调用合约的查询资金池的余额代码和我在资金池冲的余额;
-      2.这是ichi的合约,仔细分析abi. 给我abi.js .
-      3.还缺少什么告诉我,我来给你提供.
+
 
     </copy-code>
 
@@ -53,26 +42,31 @@ import {ElMessage} from 'element-plus'
 import {ethers} from 'ethers'
 import CopyCode from "~/components/CopyCode.vue";
 const kk=ref(0)
-const address = ref('0x14Ef96A0f7d738Db906bdD5260E46AA47B1e6E45')
 const mainAbi = ref<any[] | null>(null)
 const abi = ref<any[] | null>(null)
 const abiAddress=ref('')
 const loading = ref(false)
-const error = ref('')
+const error = ref<string|null>('')
+const prompt = ref({})
 
 const API_KEY = '762C86QZQ45FUURRGA8DJUYK32C6AP6ZAG'
 const RPC_URL = 'https://polygon-rpc.com'
 const provider = new ethers.JsonRpcProvider(RPC_URL)
 const methodNames=ref<string[]>([]);
-const getAbiFromExplorer = async (addr: string) => {
+const getAbiFromExplorer = async (addr: string | null) => {
+  if(!addr) return []
   const url=`https://api.etherscan.io/v2/api?chainid=137&module=contract&action=getabi&address=${addr}&apikey=${API_KEY}`
   const res = await fetch(url)
   const json = await res.json()
   if (json.status !== '1') throw new Error(json.result || '获取 ABI 失败')
   return JSON.parse(json.result)
 }
+const route = useRoute()
+const address = ref<string|null>('')
+address.value=route.query.address as string || ''
 
-const getImplementationAddress = async (proxyAddress: string) => {
+const getImplementationAddress = async (proxyAddress: string|null) => {
+  if(!proxyAddress) return ''
   const slot = '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc'
   const storage = await provider.getStorage(proxyAddress, slot)
    // 截取最后20字节
@@ -90,7 +84,6 @@ const loadAbi = async () => {
   loading.value = true
   abi.value = null
   error.value = ''
-
   try {
     const fetchedAbi = await getAbiFromExplorer(address.value)
     mainAbi.value = fetchedAbi
@@ -117,6 +110,14 @@ const formattedMainAbi = computed(() => JSON.stringify(mainAbi.value, null, 2))
 
 const formattedAbi = computed(() => JSON.stringify(abi.value, null, 2))
 
+const prompts=[
+  {
+    name:'ABI解读',
+    prefix:'这是一个合约的ABI,帮我解释下',
+    refCode:'',
+    suffix:''
+  }
+]
 
 
 </script>

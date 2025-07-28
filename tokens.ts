@@ -51,3 +51,6 @@ export const TOKENS: Token[] = [
         coingeckoId: 'uniswap',
     },
 ]
+export function getNameByAddress(address){
+    return TOKENS.filter(token => token.address === address).map(token => token.name)[0]
+}

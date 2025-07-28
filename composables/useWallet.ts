@@ -1,32 +1,50 @@
-// @ts-ignore
-import { ref } from 'vue'
-// @ts-ignore
-import { BrowserProvider, formatEther } from 'ethers'
-// @ts-ignore
-import {markRaw} from "vue";
-export const useWallet = () => {
-  const account = ref<string | null>(null)
-  const balance = ref<string | null>(null)
+// composables/useWallet.ts
+import {ref, computed, markRaw} from 'vue'
+import {BrowserProvider, formatEther} from 'ethers'
+
+export function useWallet() {
   const provider = ref<BrowserProvider | null>(null)
-
-  const connectWallet = async () => {
-    if (typeof window === 'undefined' || !window.ethereum) {
-      throw new Error('MetaMask 未安装或非浏览器环境')
-    }
+  const address = ref<string>('')
+  const chainId = ref<number | null>(null)
+  const isConnected = computed(() => !!address.value)
+  const account = ref<string>('')
+  const balance = ref<string>('')
+  async function connectWallet() {
+    if (isConnected.value) return
+    if (!window.ethereum) throw new Error('请安装 MetaMask')
     await window.ethereum.request({ method: 'eth_requestAccounts' })
-
-
     provider.value = markRaw(new BrowserProvider(window.ethereum))
-
     const signer = await provider.value.getSigner()
-    account.value = await signer.getAddress()
-    const rawBalance = await provider.value.getBalance(account.value)
+    address.value = await signer.getAddress()
+    const network = await provider.value.getNetwork()
+    chainId.value = Number(network.chainId)
+    // 监听账户/网络切换
+    window.ethereum.on?.('accountsChanged', (accs: string[]) => {
+      address.value = accs?.[0] ?? ''
+    })
+    window.ethereum.on?.('chainChanged', () => {
+      window.location.reload()
+    })
+  }
+  async function getSigner() {
+    if (!provider.value) throw new Error('请先连接钱包')
+    return provider.value.getSigner()
+  }
+
+  async function loadGas() {
+    if (!provider.value) throw new Error('请先连接钱包')
+    const rawBalance = await provider.value.getBalance(address.value)
     balance.value = formatEther(rawBalance)
   }
 
   return {
+    provider,
+    address,
+    balance,
+    chainId,
+    isConnected,
     connectWallet,
-    account,
-    balance
+    loadGas,
+    getSigner,
   }
 }
